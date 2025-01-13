@@ -1,0 +1,104 @@
+.AuthPageWrapper 
+    height: 100dvh 
+    width: 100%
+    background: #fff
+
+    h1 
+
+
+    .ContentQr
+        width: 100%
+        max-width: 25.5rem
+        margin: 0 auto
+        text-align: center
+        padding: 6rem 1rem 1rem
+        padding-top: 6rem
+        display: grid
+        justify-items: center
+
+        .Qr 
+            display: block
+
+        .QRTitle 
+            font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Apple Color Emoji", "Segoe UI", Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif
+            color: #000
+            font-weight: 600
+            margin: 1.5rem 0 0.25rem 0
+            font-size: 1.25rem
+            line-height: 1
+            -webkit-font-smoothing: antialiased
+            -moz-osx-font-smoothing: grayscale
+
+        ol
+            list-style: none
+            counter-reset: item
+            padding: 0 1.75rem
+            margin-top: 0
+            margin-bottom: 1rem
+            color: #000
+
+            li
+                counter-increment: item
+                text-align: left
+                margin: .75rem 0
+                display: flex
+
+                &::before 
+                    content: counter(item)
+                    font-family: Roboto, sans-serif
+                    display: flex
+                    justify-content: center
+                    align-items: center
+                    min-width: 1.375rem
+                    height: 1.375rem
+                    padding: 0
+                    margin: 0 .75rem 0 0
+                    background: #3390ec
+                    border-radius: 50%
+                    font-size: smaller
+                    color: #fff
+
+    .ContentAuth
+        width: 100%
+        max-width: 25.5rem
+        margin: 0 auto
+        text-align: center
+        padding: 6rem 1rem 1rem
+        padding-top: 6rem
+        display: grid
+        justify-items: center
+
+        .TgLogo 
+            width: 7.5rem
+            height: 7.5rem
+
+        .SignInTitle
+            font-size: 2rem
+            margin: 22px 0 14px
+            line-height: 110%
+            font-weight: 500
+            color: #000
+            margin-top: 0
+            margin-bottom: .5rem
+
+        .Hint
+            font-size: 1rem
+            margin-bottom: 3rem
+            color: #707579
+
+        .PhoneLoginBtn
+
+
+        
+
+@media (min-width: 600px)
+    .ContentQr
+        padding-top: 4rem!important
+
+    .ContentAuth
+        padding: 6.8125rem 1.5rem 1.5rem!important
+    
+        .TgLogo 
+            width: 10rem!important
+            height: 10rem!important
+            margin-bottom: 2.5rem

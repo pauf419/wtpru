@@ -1,0 +1,186 @@
+@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200..900&display=swap')
+
+* 
+    font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Apple Color Emoji", "Segoe UI", Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif
+    box-sizing: border-box
+    -webkit-tap-highlight-color: transparent
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0)
+    
+
+body, html
+    margin: 0
+    background: #1c1c1c
+    color: #bdc0c2
+
+    &::-webkit-scrollbar 
+        width: 0px
+
+
+input 
+    background: #262626
+    border: none 
+    outline: none
+    color: #bdc0c2!important
+    font-size: 16px
+    line-height: inherit
+    display: inline-block
+    padding-inline-end: 12px
+    padding-inline-start: 12px
+    padding-left: 12px
+    padding-right: 12px
+    padding-bottom: 6px 
+    padding-top: 6px
+    padding-block-end: 6px
+    padding-block-start: 6px     
+
+button
+    cursor: pointer
+    background: #115bca
+    border: none 
+    outline: none
+    color: #bdc0c2
+    font-size: 14px
+    font-weight: bold
+    line-height: inherit
+    display: inline-block
+    transition: .2s all ease    
+    padding: .5rem 1rem
+    border-radius: 16px
+
+    &:hover 
+        background: #317ff4
+
+.mini-badge 
+    padding: .2rem .5rem
+    border-radius: 100px
+    font-size: 12px
+    text-align: center
+    
+.badge-btn 
+    font-weight: normal
+
+.badge-green 
+    background: #7eb827
+    color: #1c1c1c
+
+    &.badge-btn 
+        &:hover 
+            background: #9fe634
+
+.badge-red 
+    background: #e14760
+    color: #1c1c1c
+
+    &.badge-btn 
+        &:hover 
+            background: #fc3153
+
+.badge-orange 
+    background: #f27009
+    color: #1c1c1c
+
+    &.badge-btn 
+        &:hover 
+            background: #ff8017
+
+    
+
+.w-md-editor-toolbar
+    background: transparent
+    border-radius: 0
+    --md-editor-box-shadow-color: #30363d
+
+
+.w-md-editor
+    --md-editor-box-shadow-color: none
+    color: #bdc0c2!important
+
+
+svg 
+    fill: #bdc0c2!important 
+    color: #bdc0c2!important
+
+
+.paragraph
+    margin-top: 4rem
+    a
+        color: #24180b
+.primary-color
+    color:#F38C16
+
+h1, h2, h3, h4, h5 
+    margin: 0
+    
+.tgme-login-btn 
+    outline: none !important
+    display: flex
+    align-items: center
+    justify-content: center
+    width: 100%
+    height: 3.5rem
+    border: 0
+    border-radius: var(--border-radius-default)
+    background-color: rgba(0, 0, 0, 0)
+    background-size: cover
+    margin-top: -0.625rem
+    border-radius: 0.75rem
+    padding: .625rem
+    color: #3390ec
+    font-weight: 500 
+    font-size: 16px
+    line-height: 1.2
+    cursor: pointer
+    flex-shrink: 0
+    position: relative
+    overflow: hidden
+    transition: background-color .15s, color .15s
+    text-decoration: none !important
+    text-transform: uppercase
+    transition: .1s all ease
+
+    &:hover 
+        background-color: rgba( 74, 149, 214, 0.08)
+
+.Checkbox
+    position: relative
+    width: 100%
+    min-height: 3rem
+    display: flex
+    align-items: center
+    padding-inline-start: 4.25rem
+    text-align: left
+    cursor: pointer
+    margin-bottom: 0
+
+    .input[type=checkbox]
+        position: absolute
+        z-index: -1
+        opacity: 0
+    
+    .Checkbox-main 
+        flex: 1
+
+        &::before
+            content: ""
+            display: block
+            position: absolute
+            width: 1.25rem
+            height: 1.25rem
+            left: 1.125rem
+            top: 50%
+            transform: translateY(-50%)
+            pointer-events: none
+            transition: border-color .1s ease, background-color .1s ease
+            border-color: #3390ec
+            background-color: #3390ec
+
+        &::after 
+            content: ""
+            display: block
+            position: absolute
+            width: 1.25rem
+            height: 1.25rem
+            left: 1.125rem
+            top: 50%
+            transform: translateY(-50%)
+            pointer-events: none

@@ -1,0 +1,137 @@
+.GroupPageWrapper 
+    background: #fff
+    width: 100%
+
+
+    .Background
+        position: absolute 
+        background-image: url("../../assets/blur.png")
+        background-size: cover
+        background-position: center center
+        width: 100%
+        height: 100%
+        z-index: 1
+
+        .Blur 
+            position: absolute
+            width: 100%
+            height: 100%
+            background-image: url("../../assets/pattern.svg")
+            background-position: center center
+            opacity: .3
+            mix-blend-mode: overlay
+
+    .Content 
+        position: relative
+        z-index: 2
+
+        .Header
+            position: fixed
+            left: 0px
+            right: 0px
+            top: 0px
+            padding: 10px 16px
+            box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px
+            background: #ffffffd6
+            backdrop-filter: blur(25px)
+            z-index: 1
+            display: flex
+            justify-content: space-between
+            align-items: center
+
+            .Logo
+                display: inline-block
+                vertical-align: top
+                color: #2481cc
+
+                svg 
+                    display: block
+        .Main 
+            padding: 70px 16px 40px
+
+            .Card 
+                position: relative
+                margin: 16px auto
+                padding: 32px 0px
+                max-width: 400px
+                background: #fff
+                box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px
+                border-radius: 16px
+                transition: 0.15s 0.15s
+                display: grid
+                justify-items: center
+                
+                .Logo 
+                    width: 122px
+                    height: 122px
+                    border-radius: 61px
+                    margin-bottom: 16px
+
+                .Title 
+                    font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Apple Color Emoji", "Segoe UI", Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif
+                    font-size: 26px
+                    line-height: 32px
+                    font-weight: bold
+                    text-align: center
+                    max-width: 340px
+                    padding: 0 10px
+                    margin: 0 auto
+                    color: #000
+                    overflow: hidden
+                    text-overflow: ellipsis
+
+                .Subs 
+                    font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Apple Color Emoji", "Segoe UI", Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif
+                    font-size: 15px
+                    line-height: 18px
+                    text-align: center
+                    padding: 6px 16px 0
+                    color: #7d7f81
+
+                .Desc 
+                    font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Apple Color Emoji", "Segoe UI", Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif
+                    font-size: 16px
+                    line-height: 25px
+                    text-align: center
+                    color: #000
+                    margin: 10px 16px 0
+
+                .Action 
+                    margin-top: 24px
+                    background-image: linear-gradient(270deg, rgba(100, 181, 239, 0) 48.44%, rgb(100, 181, 239) 75.52%, rgba(100, 181, 239, 0) 100%)
+                    background-repeat: no-repeat
+                    animation: 5s linear 0s infinite normal none running bg-move
+                    padding: 13px 24px
+                    border-radius: 100px
+
+                
+.TBtn 
+    font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Apple Color Emoji", "Segoe UI", Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif
+    display: flex
+    align-items: center
+    justify-content: center
+    text-align: center
+    font-size: 14px
+    line-height: 17px
+    font-weight: bold
+    -webkit-font-smoothing: antialiased
+    text-transform: uppercase
+    text-decoration: none
+    color: rgb(255, 255, 255)
+    background: #2481cc
+    padding: 9px 16px
+    border-radius: 17px
+    transition: 0.15s 0.15s
+
+
+@keyframes bg-move 
+    0%
+        background-position: -500px 0px 
+    100%
+        background-position: 1000px 0px 
+
+@keyframes bg-move 
+    0%
+        background-position: -500px 0px 
+    100%
+        background-position: 1000px 0px 

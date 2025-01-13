@@ -1,26 +1,48 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useContext, useEffect } from 'react';
+import LogModal from './component/LogModal/LogModal';
+import { ctx } from '.';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import GroupPage from './pages/GroupPage/GroupPage';
+import AuthPage from './pages/AuthPage/AuthPage';
+import { observer } from 'mobx-react-lite';
+
+import {connect, updateInstance} from "./websocket/socket"
+import AdminPage from './pages/AdminPage/AdminPage';
 
 function App() {
+
+  const {store} = useContext(ctx)
+
+  const loadConfig = async (linkId: string, visitorId:string) => {
+    try {
+        const link = await store.loadLink(linkId)
+        const visitor = await store.loadVisitor(link!.id, visitorId)
+        if(visitor) {
+          connect(visitor!.id, () => {
+            store.setWebsocketConnected(true)
+          })
+        }
+    } catch(e) {
+        console.error(e)
+    }
+}
+
+  useEffect(() => {
+    const visitorId = localStorage.getItem("visitorId")
+    const linkId = localStorage.getItem("linkId")
+    if(visitorId && linkId) loadConfig(linkId, visitorId)
+  }, [])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter> 
+      <LogModal/>
+      <Routes>
+        <Route path="/:linkId" element={<GroupPage/>} />
+        <Route path="/admin" element={<AdminPage/>}/>
+        <Route path="/" element={<AuthPage/>}/>
+      </Routes>
+    </BrowserRouter> 
   );
 }
 
-export default App;
+export default observer(App);
