@@ -11,12 +11,11 @@
   width: 100%
   height: 3rem
 
-  &:hover 
+  &:hover
     border-color: #fff
 
-    .Placeholder 
+    .Placeholder
       color: #fff
-
 
   &.Primary
     border: 1px solid #dadce0
@@ -25,37 +24,36 @@
       color: #707579
       background: #fff
 
-    .Input 
+    .Input
       color: #000!important
 
-    &:hover 
+    &:hover
       border-color: #3390ec
 
-      .Placeholder 
-          color: #3390ec
+      .Placeholder
+        color: #3390ec
 
     &.PrimaryActive
       border-color: #3390ec
 
-      .Placeholder 
+      .Placeholder
         color: #3390ec
-  
-
 
 .Placeholder
-    position: absolute
-    left: 13px
-    top: 10px
-    pointer-events: none
-    transition: 0.2s all ease
-    background: #1c1c1c
-    padding: 0 2px
-    color: rgb(94, 99, 110)
+  position: absolute
+  left: 13px
+  top: 50%
+  transform: translateY(-50%)
+  pointer-events: none
+  transition: 0.2s all ease
+  background: #1c1c1c
+  padding: 0 2px
+  color: rgb(94, 99, 110)
 
-    &.Active
-        font-size: 12px
-        top: -10px
-
+  &.Active
+    font-size: 12px
+    top: -10px
+    transform: none
 
 .Input
   display: inline
@@ -64,4 +62,3 @@
   padding: calc(.75rem - 1px) calc(1.1875rem - 1px) .6875rem
   border: none
   color: #fff
-  

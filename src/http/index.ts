@@ -3,7 +3,7 @@ import { store } from "../index";
 
 const $api = axios.create({
   withCredentials: true,
-  baseURL: "http://localhost:5000/api",
+  baseURL: "http://localhost:6100/api",
 });
 
 $api.interceptors.response.use(

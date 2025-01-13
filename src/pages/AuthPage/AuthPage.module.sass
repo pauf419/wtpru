@@ -1,10 +1,9 @@
-.AuthPageWrapper 
-    height: 100dvh 
+.AuthPageWrapper
+    height: 100dvh
     width: 100%
     background: #fff
 
-    h1 
-
+    h1
 
     .ContentQr
         width: 100%
@@ -16,10 +15,10 @@
         display: grid
         justify-items: center
 
-        .Qr 
+        .Qr
             display: block
 
-        .QRTitle 
+        .QRTitle
             font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Apple Color Emoji", "Segoe UI", Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif
             color: #000
             font-weight: 600
@@ -43,7 +42,7 @@
                 margin: .75rem 0
                 display: flex
 
-                &::before 
+                &::before
                     content: counter(item)
                     font-family: Roboto, sans-serif
                     display: flex
@@ -68,7 +67,7 @@
         display: grid
         justify-items: center
 
-        .TgLogo 
+        .TgLogo
             width: 7.5rem
             height: 7.5rem
 
@@ -86,10 +85,68 @@
             margin-bottom: 3rem
             color: #707579
 
-        .PhoneLoginBtn
+        .Checkbox
+            margin: 8px
+            position: relative
+            width: 100%
+            min-height: 3rem
+            display: flex
+            align-items: center
+            padding-inline-start: 4.25rem
+            text-align: left
+            cursor: pointer
+            border-radius: 0.75rem
+            transition: all 0.1s ease-in-out
 
+            &:hover
+                background: rgb(0, 0, 0, 0.03)
 
-        
+            input
+                position: absolute
+                z-index: -1
+                opacity: 0
+
+                &:checked ~ .Checkbox-main::before
+                    border-color: rgb(51, 144, 236)
+                    background-color: rgb(51, 144, 236)
+
+                &:checked ~ .Checkbox-main::after
+                    opacity: 1
+
+            .Checkbox-main::before, .Checkbox-main::after, .Checkbox
+                box-sizing: border-box
+                content: ""
+                display: block
+                position: absolute
+                width: 20px
+                height: 20px
+                left: 1.125rem
+                top: 50%
+                transform: translateY(-50%)
+                pointer-events: none
+
+            .Checkbox-main::before
+                border: .125rem solid rgb(218, 220, 224)
+                border-radius: .25rem
+                background-color: rgb(255, 255, 255)
+                transition: border-color .1s ease,background-color .1s ease
+
+            .Checkbox-main::after
+                background: center no-repeat url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEzLjkuOEw1LjggOC45IDIuMSA1LjJjLS40LS40LTEuMS0uNC0xLjYgMC0uNC40LS40IDEuMSAwIDEuNkw1IDExLjJjLjQuNCAxLjEuNCAxLjYgMGw4LjktOC45Yy40LS40LjQtMS4xIDAtMS42LS41LS40LTEuMi0uNC0xLjYuMXoiIGZpbGw9IiNGRkYiIGZpbGwtcnVsZT0ibm9uemVybyIvPjwvc3ZnPg==)
+                background-size: auto
+                transition: opacity .1s ease
+                opacity: 0
+                top: 50%
+                transform: translateY(-50%)
+
+            .Checkbox-main .label
+                word-break: break-word
+                unicode-bidi: plaintext
+                text-align: left
+                line-height: 1.25rem
+                font-weight: 300
+                color: #000
+                user-select: none
 
 @media (min-width: 600px)
     .ContentQr
@@ -97,8 +154,8 @@
 
     .ContentAuth
         padding: 6.8125rem 1.5rem 1.5rem!important
-    
-        .TgLogo 
+
+        .TgLogo
             width: 10rem!important
             height: 10rem!important
             margin-bottom: 2.5rem
