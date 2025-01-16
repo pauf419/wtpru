@@ -9,17 +9,15 @@ interface InputProps {
     required?: boolean
     value: string
     primary?: boolean
+    invalid?: boolean
+    invalidPlaceholder?: string
+    maxlength?: number
 }
 
-const Input: FC<InputProps> = ({placeholder, onChange, required=false, value, primary = false}) => {
+const Input: FC<InputProps> = ({maxlength = 1000, invalid = false, invalidPlaceholder = false, placeholder, onChange, required=false, value, primary = false}) => {
   const [focus, setFocus] = useState<boolean>(false);
   const [v, setV] = useState<string>()
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    onChange(v!)
-  }, [v])
 
   useEffect(() => {
     if(!value || value === "") setFocus(false)
@@ -30,23 +28,28 @@ const Input: FC<InputProps> = ({placeholder, onChange, required=false, value, pr
   }, [value])
 
   return (
-    <div className={`${m.Wrapper} ${primary && m.Primary} ${(primary && (focus || v)) && m.PrimaryActive}`} ref={wrapperRef}>
+    <div className={`${m.Wrapper} ${invalid && m.Invalid} ${primary && m.Primary} ${(primary && (focus || v)) && m.PrimaryActive}`} ref={wrapperRef}>
       <label 
         className={`${m.Placeholder} ${(focus || v) && m.Active}`} 
         htmlFor="inp" 
         onClick={() => setFocus(true)}
         >
-        {placeholder}
+        {invalid ? invalidPlaceholder : placeholder}
       </label>
       <input
+        maxLength={maxlength}
         required={required}
         value={value}
-        onChange={e => setV(e.target.value)}
+        onChange={e => {
+          setV(e.target.value)
+          onChange(e.target.value)
+        }}
         className={m.Input}
         id="inp"
         autoFocus={focus}
         onFocus={() => setFocus(true)}
         onBlur={(e) => !v && setFocus(false)}
+        autoComplete="off"
       />
     </div>
   );

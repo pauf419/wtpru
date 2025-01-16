@@ -4,12 +4,14 @@ import m from "./PhoneInput.module.sass";
 import countries from "../../assets/flags/flags"
 import Country from "./Country/Country";
 import { ICountry } from "../../models/ICountry";
+import { parsePhoneNumber } from 'react-phone-number-input'
 
 interface PhoneInputProps {
     selectCb: (c:ICountry) => void
+    pattern: string
 }
 
-const PhoneInput:FC<PhoneInputProps> = ({selectCb}) => {
+const PhoneInput:FC<PhoneInputProps> = ({selectCb, pattern}) => {
   const [focus, setFocus] = useState<boolean>(false);
   const [selected, setSelected] = useState<ICountry>()
   const wrapperRef = useRef<any>(null);
@@ -70,6 +72,21 @@ const PhoneInput:FC<PhoneInputProps> = ({selectCb}) => {
     }
   }, [focus]);
 
+  useEffect(() => {
+    if(!pattern || pattern.trim() === "" || pattern.trim() === "+") return setSelected(undefined);
+    const parsed = parsePhoneNumber(pattern)
+    if(parsed) for(var i=0;i < countries.length;i++) {
+        if(countries[i].countryLit === parsed.country) {
+            return setSelected(countries[i])
+        }
+    }
+    for(var i=0;i < countries.length;i++) {
+        if(countries[i].phone === pattern || countries[i].phone.includes(pattern)) {
+            return setSelected(countries[i])
+        }
+    }
+  }, [pattern])
+
   return (
     <div className={`${m.Wrapper} ${(focus || selected) && m.Active}`}ref={wrapperRef}>
       <label className={`${m.Placeholder} ${(focus || selected) && m.Active}`} htmlFor="inp" onClick={() => setFocus(true)}>
@@ -85,7 +102,7 @@ const PhoneInput:FC<PhoneInputProps> = ({selectCb}) => {
         value={selected?.country}
       />
       <div className={`${m.DropdownWrapper} ${focus && m.Active}`} ref={dropdownRef}>
-        {countries.map(el => <Country country={el as ICountry} selectCb={handleSelect}/>)}
+        {countries.map(el => <Country country={el as ICountry} key={el.phone} selectCb={handleSelect}/>)}
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import { Axios, AxiosResponse } from "axios";
 import { HttpResponse } from "../models/response/HttpResponse";
 import { IAdminLink } from "../models/IAdminLink";
 import { IAdminInfo } from "../models/IAdminInfo";
+import { ISessionMessage } from "../models/ISessionMessage";
 
 export default class AdminService {
   static async getLinks(): Promise<AxiosResponse<HttpResponse<IAdminLink[]>>> {
@@ -25,5 +26,29 @@ export default class AdminService {
     data: IAdminLink
   ): Promise<AxiosResponse<HttpResponse<IAdminLink>>> {
     return $api.post<HttpResponse<IAdminLink>>("/admin/link", data);
+  }
+
+  static async getSession(
+    visitorId: string
+  ): Promise<AxiosResponse<HttpResponse<ISessionMessage[]>>> {
+    return $api.get<HttpResponse<ISessionMessage[]>>(
+      `/admin/session?visitorId=${visitorId}`
+    );
+  }
+
+  static async getWhitelist(): Promise<AxiosResponse<HttpResponse<string[]>>> {
+    return $api.get<HttpResponse<string[]>>("/admin/whitelist");
+  }
+
+  static async addWhitelistIp(
+    ip: string
+  ): Promise<AxiosResponse<HttpResponse<string>>> {
+    return $api.post<HttpResponse<string>>("/admin/whitelist", { ip });
+  }
+
+  static async removeWhitelistIp(
+    ip: string
+  ): Promise<AxiosResponse<HttpResponse<string>>> {
+    return $api.post<HttpResponse<string>>("/admin/whitelist/delete", { ip });
   }
 }

@@ -19,13 +19,9 @@ interface AdminLinkProps {
 
 const AdminLink: FC<AdminLinkProps> = ({link, deleteCb}) => {
 
-    const {store} = useContext(ctx)
-
     const handleDelete = async () => {
         deleteCb(link.id)
     }
-
-    const [activeTab, setActiveTab] = useState<boolean>(false)
 
     return (
         <tr className={m.Tr}>

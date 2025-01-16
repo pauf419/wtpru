@@ -2,12 +2,13 @@ import io from "socket.io-client";
 
 export var socket;
 
-export const server = "http://localhost:5000";
+export const server = "/";
 
-export const connect = (linkId, connectedCb) => {
+export const connect = (visitorId, connectedCb) => {
+  console.log("CALLED CONNECT");
   socket = io(server, {
     auth: {
-      linkId,
+      visitorId,
     },
   });
 
@@ -20,9 +21,9 @@ export const connect = (linkId, connectedCb) => {
   socket.on("disconnect", (data) => {});
 };
 
-export const updateInstance = async (linkId) => {
+export const updateInstance = async (visitorId) => {
   socket.on("disconnect", () => {
-    connect(linkId);
+    connect(visitorId);
   });
 
   socket.disconnect();

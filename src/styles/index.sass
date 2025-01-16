@@ -6,6 +6,30 @@
     -webkit-tap-highlight-color: transparent
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0)
 
+@font-face 
+    font-family: "Icons"
+    src: url("./icons.189fef30b3fe0b182907.woff2")
+
+.pencilIcon
+    font-family: "icons" !important
+    position: relative 
+    color: #aaaaaa
+    opacity: .75
+    width: 2.5rem
+    height: 2.5rem
+    padding: .5rem
+    font-size: 1.5rem
+    cursor: pointer
+
+    &::before 
+        content: ""
+        width: 20px
+        height: 20px
+
+    &:hover
+        opacity: .9
+
+
 body, html
     margin: 0
     background: #1c1c1c
@@ -105,6 +129,7 @@ h1, h2, h3, h4, h5
     margin: 0
 
 .tgme-login-btn
+    position: relative
     outline: none !important
     display: flex
     align-items: center
@@ -133,3 +158,24 @@ h1, h2, h3, h4, h5
 
     &:hover
         background-color: rgba( 74, 149, 214, 0.08)
+
+.tgme-login-btn-primary
+    background: #3390ec
+    color: #fff
+
+    &:hover 
+        background: #4a95d6
+
+.tgme-btn-margin-large
+    margin-top: 2.75rem
+
+.tgme-btn-margin 
+    margin-top: 1rem
+
+.margin-bottom
+    margin-bottom: 1.125rem
+
+.tgme-btn-spinner-holder
+    position: absolute
+    right: .875rem
+    top: calc(28px - 14.5px)

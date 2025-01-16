@@ -5,59 +5,17 @@ import LinkService from "../../services/LinkService";
 import m from "./GroupPage.module.sass"
 import { useQuery } from "../../hooks/useQueryHook";
 import { useNavigate, useParams } from "react-router-dom";
+import { Helmet, HelmetProvider } from "react-helmet-async";
 
 const GroupPage: FC = () => {
 
     const {store} = useContext(ctx)
     const navigate = useNavigate()
 
-    const { linkId } = useParams();
-    
-    /*const loadLink = async (linkId: string) => {
-        try {
-            const {data} = await LinkService.getConfig(linkId)
-            if(data.json) store.setLink(data.json)
-            
-        } catch(e) {
-            console.error(e)
-        }
-    }
-
-    const loadData = async () => {
-        try {
-            const {data} = await LinkService.getConfig()
-        } catch(e) {
-            console.error(e)
-        }
-    }
-
     const handleClick = async() => {
         store.setCurrentPage(1)
         navigate("/")
     }
-
-    useEffect(() => {
-        if(linkId?.trim() !== undefined) loadLink(linkId) 
-    }, [linkId])*/
-
-    const loadConfig = async (linkId: string) => {
-        try {
-            const link = await store.loadLink(linkId)
-            const visitor = await store.loadVisitor(link!.id, store.visitor?.id!)
-        } catch(e) {
-            console.error(e)
-        }
-    }
-
-    const handleClick = async() => {
-        store.setCurrentPage(1)
-        navigate("/")
-    }
-
-    useEffect(() => {
-        if(linkId?.trim() !== undefined) loadConfig(linkId)
-    }, [linkId])
-
     if(!store.link) return <></>
 
     return (

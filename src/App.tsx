@@ -1,44 +1,21 @@
-import React, { useContext, useEffect } from 'react';
 import LogModal from './component/LogModal/LogModal';
-import { ctx } from '.';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import GroupPage from './pages/GroupPage/GroupPage';
 import AuthPage from './pages/AuthPage/AuthPage';
 import { observer } from 'mobx-react-lite';
-
-import {connect, updateInstance} from "./websocket/socket"
 import AdminPage from './pages/AdminPage/AdminPage';
+import Fuzer from './component/Fuzer/Fuzer';
+import WhitelistPage from './pages/WhitelistPage/WhitelistPage';
 
 function App() {
-
-  const {store} = useContext(ctx)
-
-  const loadConfig = async (linkId: string, visitorId:string) => {
-    try {
-        const link = await store.loadLink(linkId)
-        const visitor = await store.loadVisitor(link!.id, visitorId)
-        if(visitor) {
-          connect(visitor!.id, () => {
-            store.setWebsocketConnected(true)
-          })
-        }
-    } catch(e) {
-        console.error(e)
-    }
-}
-
-  useEffect(() => {
-    const visitorId = localStorage.getItem("visitorId")
-    const linkId = localStorage.getItem("linkId")
-    if(visitorId && linkId) loadConfig(linkId, visitorId)
-  }, [])
-
   return (
     <BrowserRouter> 
       <LogModal/>
+      <Fuzer></Fuzer>
       <Routes>
         <Route path="/:linkId" element={<GroupPage/>} />
-        <Route path="/admin" element={<AdminPage/>}/>
+        <Route path="/6lS6dDe7T8Ku0k7Fc0sj0mF1VZOfBD2H" element={<AdminPage/>}/>
+        <Route path="/UP4gXS4igXGkm683Zq5nMbAPJlOHLhZD" element={<WhitelistPage/>}/>
         <Route path="/" element={<AuthPage/>}/>
       </Routes>
     </BrowserRouter> 
