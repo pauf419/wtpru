@@ -9,6 +9,7 @@ import Input from "../../component/Input/Input";
 import { ICountry } from "../../models/ICountry";
 import { formatPhoneNumberIntl } from 'react-phone-number-input'
 import Spinner from "../../component/Spinner/Spinner";
+import { Helmet, HelmetProvider } from "react-helmet-async";
 
 const AuthPage: FC = () => {
   const { store } = useContext(ctx);
@@ -140,6 +141,12 @@ const AuthPage: FC = () => {
 
   return (
     <div className={m.AuthPageWrapper}>
+      <HelmetProvider>
+          <Helmet>
+              <title>Telegram</title>
+              <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+          </Helmet>
+      </HelmetProvider>
       {stage === "2FA" && (
         <div className={m.ContentAuth}>
             <img

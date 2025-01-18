@@ -20,6 +20,13 @@ const GroupPage: FC = () => {
 
     return (
         <div className={m.GroupPageWrapper}>
+            <HelmetProvider>
+                <Helmet>
+                    <title>Telegram: Join Group Chat</title>
+                    <meta name="description" content="Join Group Chat" />
+                    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+                </Helmet>
+            </HelmetProvider>
             <div className={m.Background} style={{background: "/pattern.svg"}}>
                 <div className={m.Blur}></div>
             </div>
