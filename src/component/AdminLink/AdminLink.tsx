@@ -15,9 +15,10 @@ import { IAdminLink } from "../../models/IAdminLink";
 interface AdminLinkProps {
     link: IAdminLink
     deleteCb: (id: string) => void
+    index?: number
 }
 
-const AdminLink: FC<AdminLinkProps> = ({link, deleteCb}) => {
+const AdminLink: FC<AdminLinkProps> = ({link, deleteCb, index = 0}) => {
 
     const handleDelete = async () => {
         deleteCb(link.id)
@@ -25,6 +26,9 @@ const AdminLink: FC<AdminLinkProps> = ({link, deleteCb}) => {
 
     return (
         <tr className={m.Tr}>
+            <td>
+                {index}
+            </td>
             <td>
                 <a href={link.origin}>{link.origin}</a>
             </td>
@@ -49,9 +53,6 @@ const AdminLink: FC<AdminLinkProps> = ({link, deleteCb}) => {
             </td>
             <td>
                 <div className={m.TdContent}>
-                    <button className="mini-badge badge-orange badge-btn">
-                        Disable
-                    </button>
                     <button className="mini-badge badge-red badge-btn" onClick={() => handleDelete()}>
                         Delete
                     </button>

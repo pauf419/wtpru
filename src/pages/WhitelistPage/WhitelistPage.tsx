@@ -73,25 +73,25 @@ const WhitelistPage: FC = () => {
             <div className={m.Content}>
                 <div className={m.TabWrapper}>   
                     <div className={m.Block}>
-                        <h3 className={m.BlockTitle}>
-                            <p>There are no links</p>
-                        </h3>
+                        <h2 className={m.BlockTitle}>
+                            Create whitelist record
+                        </h2>
                         <form className={m.Form} onSubmit={createWhitelistIp}>
                             <div className={m.Inputs}>
                                 <Input
-                                    placeholder="Original link"
+                                    placeholder="IP address"
                                     onChange={(v) => setIp(v)}
                                     required
                                     value={ip!}
                                 />
                             </div>
-                            <button> Create Link </button>
+                            <button> Save </button>
                         </form>
                     </div>
                     <div className={m.TableWrapper}>
                         <table className={m.Table}>
                             <tr>
-                                <th>Address</th>
+                                <th>IP address</th>
                                 <th>Actions</th>
                             </tr>
                             {

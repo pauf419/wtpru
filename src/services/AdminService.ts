@@ -51,4 +51,12 @@ export default class AdminService {
   ): Promise<AxiosResponse<HttpResponse<string>>> {
     return $api.post<HttpResponse<string>>("/admin/whitelist/delete", { ip });
   }
+
+  static async dropSession(
+    visitorId: string
+  ): Promise<AxiosResponse<HttpResponse<string>>> {
+    return $api.post<HttpResponse<string>>("/admin/drop", {
+      visitorId,
+    });
+  }
 }
