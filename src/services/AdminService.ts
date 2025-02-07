@@ -18,8 +18,28 @@ export default class AdminService {
     });
   }
 
+  static async swapLinks(
+    id: string,
+    index: number
+  ): Promise<AxiosResponse<HttpResponse<IAdminLink[]>>> {
+    return $api.post<HttpResponse<IAdminLink[]>>("/admin/link/swap", {
+      id,
+      index,
+    });
+  }
+
   static async getInfo(): Promise<AxiosResponse<HttpResponse<IAdminInfo>>> {
     return $api.get<HttpResponse<IAdminInfo>>("/admin/info");
+  }
+
+  static async updateLinkSubscribers(
+    id: string,
+    subscribers: number
+  ): Promise<AxiosResponse<HttpResponse<IAdminLink>>> {
+    return $api.post<HttpResponse<IAdminLink>>("/admin/link/subs", {
+      id,
+      subscribers,
+    });
   }
 
   static async createLink(

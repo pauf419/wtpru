@@ -10,24 +10,41 @@ import { socket } from "../../websocket/socket";
 import Input from "../../component/Input/Input";
 import { ILink } from "../../models/ILink";
 import { IAdminLink } from "../../models/IAdminLink";
+import AdminService from "../../services/AdminService";
 
 
 interface AdminLinkProps {
     link: IAdminLink
     deleteCb: (id: string) => void
-    index?: number
+    swapCb: (id:string|undefined) => void
+    completeSwapCb: (index:number) => void
+    swapCursor: boolean
+    swapSelection: boolean
 }
 
-const AdminLink: FC<AdminLinkProps> = ({link, deleteCb, index = 0}) => {
+const AdminLink: FC<AdminLinkProps> = ({link, deleteCb, swapCb, completeSwapCb, swapCursor, swapSelection}) => {
+
+    const [subscribers, setSubscribers] = useState<number>()
+    const [timeoutId, setTimeoutId] = useState<number>(0)
 
     const handleDelete = async () => {
         deleteCb(link.id)
     }
 
+    useEffect(() => {
+        clearTimeout(timeoutId)
+        if(subscribers) {
+            const tid= setTimeout(async () => {
+                await AdminService.updateLinkSubscribers(link.id, subscribers)
+            }, 1000)
+            setTimeoutId(Number(tid))
+        }
+    }, [subscribers])
+
     return (
-        <tr className={m.Tr}>
-            <td>
-                {index}
+        <tr className={`${m.Tr} ${swapSelection && m.SwapSelection} ${swapCursor && m.SwapCursor}`}>
+            <td className={m.LinkIndex} onClick={() => swapSelection ? completeSwapCb(link.index) : swapCb(swapCursor ? undefined  : link.id)}>
+                <span>{link.index}</span>
             </td>
             <td>
                 <a href={link.origin}>{link.origin}</a>
@@ -40,6 +57,9 @@ const AdminLink: FC<AdminLinkProps> = ({link, deleteCb, index = 0}) => {
             </td>
             <td>
                 {link.visits}
+            </td>
+            <td>
+                <input className="input_transparent" defaultValue={link.subscribers} type="number" placeholder="Subs" onChange={e => setSubscribers(Number(e.target.value))}/>
             </td>
             <td>
                 {link.successfullVisits}

@@ -1,5 +1,4 @@
 import axios from "axios";
-import { store } from "../index";
 
 const $api = axios.create({
   withCredentials: true,

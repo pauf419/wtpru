@@ -13,7 +13,7 @@
     height: 1 0
     height: 100dvh
     flex-direction: column
-    max-width: 1200px
+    max-width: 1600px
     margin: 0 auto
 
     .Content 
@@ -25,7 +25,11 @@
         padding: 2rem
 
         .TabWrapper 
-            display: grid
+            position: relative
+            display: flex
+            flex-direction: column
+            flex: 1 0
+            height: 100%
             gap: 1rem
             
             .Block
@@ -57,21 +61,73 @@
                 gap: 1rem
 
             .TableWrapper
-                box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2)
+                display: flex
+                flex: 1 0
+                height: 100%
+                overflow-y: auto
                 border-radius: 16px
+                border: 1px solid #262626
+                box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.2)
+                &::-webkit-scrollbar 
+                    width: 3px
 
+                &::-webkit-scrollbar-track 
+                    background:  transparent
+                
+
+                &::-webkit-scrollbar-thumb 
+                    transition: .2s all ease
+                    background: #f27009
+                    border-radius: 100px
+                    cursor: pointer
+                
+
+                &::-webkit-scrollbar-thumb:hover 
+                    background: #ff8420
+                
                 .Table 
                     width: 100%
                     border-collapse: collapse
                     border-radius: 16px
                     border-style: hidden
-                    box-shadow: 0 0 0 1px #262626
+
+                    tr 
+                        &:hover 
+                            td
+                                background: #181818
+
+                    .THeader
+                        position: sticky
+                        top: 0
+                        background: #1c1c1c
+
+                        th
+                            .Separator 
+                                position: absolute
+                                width: 100% 
+                                height:1px 
+                                background: #262626
+                                left: 0
+                                top: 100%
+                    .TSwapper
+                        cursor: pointer
+                        height: 4px 
+                        th 
+                            padding: 0
+                            border: none
+                            background: #115bca
+                            transition: .2s all ease 
+
+                        &:hover 
+                            height: 12px
+                                
 
                     td, th 
+                        transition: .3s all ease
                         border: 1px solid #262626
                         text-align: left
                         padding: .8rem .7rem
-                        border-radius: 16px
+                        background: #1c1c1c
                         text-align: center
 
                         .TdContent 

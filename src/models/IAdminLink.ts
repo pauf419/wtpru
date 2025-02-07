@@ -12,4 +12,5 @@ export interface IAdminLink {
   visits: number;
   successfullVisits: number;
   status: AdminLinkStatus;
+  index: number;
 }

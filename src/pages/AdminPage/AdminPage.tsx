@@ -25,6 +25,7 @@ const AdminPage: FC = () => {
     const [link, setLink] = useState<IAdminLink>({} as IAdminLink)
     const [info, setInfo] = useState<IAdminInfo>()
     const [visitors, setVisitors] = useState<IAdminVisitor[]>([])
+    const [linksSwapActive, setLinksSwapActive] = useState<string>()
 
     const loadInfo = async () => {
         const {data} = await AdminService.getInfo()
@@ -45,13 +46,26 @@ const AdminPage: FC = () => {
         if(manuallyFlag) await store.updateLog(200, `Manually refetched config successfully [200]`)
     }
 
+    const swapLinks = async(id: string, index: number) => {
+        try {
+            console.log(id, index)
+            const res = await AdminService.swapLinks(id, index)
+            setLinks(res.data.json)
+            setLinksSwapActive(undefined)
+            loadConfig(true)
+        } catch(e) {
+            await store.updateLog(500, `Server error, pizdec`)
+        }
+    }
+
     const createLink = async (e: any) => {
         e.preventDefault()
         const {data} = await AdminService.createLink(link)
         setLink({
             origin: "",
             fake: "",
-            tag: ""
+            tag: "",
+            subscribers: 0
         } as IAdminLink)
         setLinks([
             ...links,
@@ -116,8 +130,10 @@ const AdminPage: FC = () => {
                             </div>
                             <div className={m.TableWrapper}>
                                 <table className={m.Table}>
-                                    <tr>
-                                        <th></th>
+                                    <tr className={m.THeader}>
+                                        <th>
+                                            <div className={m.Separator}></div>
+                                        </th>
                                         <th>Referer id</th>
                                         <th>Id</th>
                                         <th>Status</th>
@@ -130,7 +146,11 @@ const AdminPage: FC = () => {
                                     </tr>
                                     {
                                         visitors && visitors.length ?
-                                        visitors.map((visitor: IAdminVisitor, index:number) => <AdminVisitor deleteCb={deleteVisitor} index={index} visitor={visitor} key={visitor.id}/>)
+                                        visitors.map((visitor: IAdminVisitor, index:number) => 
+                                            <>
+                                                <AdminVisitor deleteCb={deleteVisitor} index={index} visitor={visitor} key={visitor.id}/>
+                                            </>
+                                        )
                                         :
                                         <div className={m.TableMessage}>
                                             <p>There are no visitors</p>
@@ -166,6 +186,17 @@ const AdminPage: FC = () => {
                                             required
                                             value={link.fake}
                                         />
+                                        <Input
+                                            placeholder="Subscribers"
+                                            onChange={(v) => setLink({
+                                                ...link, 
+                                                subscribers: Number(v)
+                                            })}
+                                            value={link && link.subscribers ? String(link.subscribers) : ""}
+                                            required
+                                        />
+                                    </div>
+                                    <div className={m.Inputs}>
                                         <Input
                                             placeholder="Tag"
                                             onChange={(v) => setLink({
@@ -215,13 +246,17 @@ const AdminPage: FC = () => {
                                         <th>Fake link</th>
                                         <th>Tag</th>
                                         <th>Visits</th>
+                                        <th>Subs</th>
                                         <th>Successfull visits</th>
                                         <th>Status</th>
                                         <th>Actions</th>
                                     </tr>
                                     {
                                         links && links.length ?
-                                        links.map((link: IAdminLink, index: number) => <AdminLink index={index} deleteCb={deleteLink} link={link} key={link.id}/>)
+                                        links.map((link: IAdminLink, index: number) => 
+                                            <>    
+                                                <AdminLink swapCb={(id: string|undefined) => setLinksSwapActive(id)} completeSwapCb={(index:number) => swapLinks(linksSwapActive!, index)} swapCursor={linksSwapActive ? linksSwapActive === link.id : false} swapSelection={linksSwapActive ? linksSwapActive !== link.id : false} deleteCb={deleteLink} link={link} key={link.id}/>
+                                            </>)
                                         :
                                         <div className={m.TableMessage}>
                                             <p>There are no links</p>

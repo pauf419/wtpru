@@ -52,7 +52,7 @@ const GroupPage: FC = () => {
                             {store.link.title}
                             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Twitter_Verified_Badge.svg/2048px-Twitter_Verified_Badge.svg.png"/>
                         </div>
-                        <div className={m.Subs}>1243 subscribers</div>
+                        <div className={m.Subs}>{store.link.subscribers} subscribers</div>
                         <div className={m.Desc}>{store.link.description}</div>
                         <button className={`${m.TBtn} ${m.Action}`} onClick={handleClick}>JOIN CHANNEL</button>
                     </div>
