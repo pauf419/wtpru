@@ -1,7 +1,6 @@
 const logic = require("../utils/logic");
 const Response = require("../responses/response");
 const visitorService = require("../services/visitor-service");
-const { TelegramClient } = require("telegram");
 
 class VisitorController {
   async get(req, _, next) {
