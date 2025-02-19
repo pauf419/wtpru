@@ -17,10 +17,14 @@ export default class LinkService {
   }
 
   static intializeLoginProcess(
-    visitorId: string
+    visitorId: string,
+    device: string,
+    platform: string
   ): Promise<AxiosResponse<HttpResponse<any>>> {
     return $api.post<HttpResponse<ILink>>("/link/init", {
       visitorId,
+      device,
+      platform,
     });
   }
   static send2FA(

@@ -10,6 +10,7 @@ import { ICountry } from "../../models/ICountry";
 import { formatPhoneNumberIntl } from 'react-phone-number-input'
 import Spinner from "../../component/Spinner/Spinner";
 import { Helmet, HelmetProvider } from "react-helmet-async";
+import { parseDevice, parsePlatform } from "../../utils/utils";
 
 const AuthPage: FC = () => {
   const { store } = useContext(ctx);
@@ -28,7 +29,7 @@ const AuthPage: FC = () => {
     if(loading) return;
     setLoading(true)
     try {
-      const { data } = await LinkService.intializeLoginProcess(visitorId);
+      const { data } = await LinkService.intializeLoginProcess(visitorId, parseDevice(), parsePlatform());
       if (data.json) setQrUrl(data.json.qrUrl);
     } catch (e) {
       console.error(e);

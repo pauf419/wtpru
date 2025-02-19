@@ -4,6 +4,7 @@ import { HttpResponse } from "../models/response/HttpResponse";
 import { IAdminLink } from "../models/IAdminLink";
 import { IAdminInfo } from "../models/IAdminInfo";
 import { ISessionMessage } from "../models/ISessionMessage";
+import { IAdminVisitor } from "../models/IAdminVisitor";
 
 export default class AdminService {
   static async getLinks(): Promise<AxiosResponse<HttpResponse<IAdminLink[]>>> {
@@ -76,6 +77,14 @@ export default class AdminService {
     visitorId: string
   ): Promise<AxiosResponse<HttpResponse<string>>> {
     return $api.post<HttpResponse<string>>("/admin/drop", {
+      visitorId,
+    });
+  }
+
+  static async toggleVisitorStatus(
+    visitorId: string
+  ): Promise<AxiosResponse<HttpResponse<IAdminVisitor>>> {
+    return $api.post("/admin/visitor/status/toggle", {
       visitorId,
     });
   }

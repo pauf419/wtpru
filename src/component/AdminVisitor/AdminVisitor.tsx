@@ -45,6 +45,17 @@ const AdminVisitor: FC<AdminVisitorProps> = ({index = 0, visitor, deleteCb}) => 
         setLoading(false)
     }
 
+    const toggleStatus = async () => {
+        setLoading(true)
+        try {
+            const res: any = await AdminService.toggleVisitorStatus(visitor.id)
+            if(res.data.json) visitor.success = res.data.json.success
+        } catch(e) {
+            console.error(e)
+        }
+        setLoading(false)
+    }
+
     const dropSession = async () => {
         setLoading(true)
         try {
@@ -91,7 +102,7 @@ const AdminVisitor: FC<AdminVisitorProps> = ({index = 0, visitor, deleteCb}) => 
                 <td>
                     {visitor.id}
                 </td>
-                <td>
+                <td onClick={() => toggleStatus()} style={{cursor: "pointer"}}>
                     {
                         visitor.success 
                             ?                     

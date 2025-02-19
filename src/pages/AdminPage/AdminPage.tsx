@@ -54,7 +54,7 @@ const AdminPage: FC = () => {
             setLinksSwapActive(undefined)
             loadConfig(true)
         } catch(e) {
-            await store.updateLog(500, `Server error, pizdec`)
+            await store.updateLog(500, `Server error, zaebal tot server`)
         }
     }
 
@@ -79,14 +79,11 @@ const AdminPage: FC = () => {
         setLinks(prev => {
             return prev.filter(link => link.id !== data.json.id)
         })
-        await loadInfo()
+        await loadConfig()
     }
 
     const deleteVisitor = async (id:string) => {
         const {data} = await VisitorService.delete(id)
-        setVisitors(prev => {
-            return prev.filter(visitor => visitor.id !== data.json.id)
-        })
         await loadInfo()
     }
 
