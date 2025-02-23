@@ -98,7 +98,7 @@ class AdminService {
     const B = await DB.query("SELECT * FROM link WHERE serial_index = ?", [
       index,
     ]).then((data) => data[0]);
-    if (!A || (!B && !del)) throw Response.NotFound();
+    if (!A || !B) throw Response.NotFound();
 
     var links = await DB.query("SELECT * FROM link ORDER BY serial_index");
     const direction = A.serial_index > index;

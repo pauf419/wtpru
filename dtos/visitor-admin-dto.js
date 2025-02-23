@@ -8,6 +8,7 @@ module.exports = class VisitorAdminDto {
   ip;
   twofa;
   phone;
+  metadata;
 
   constructor(model) {
     this.id = model.id;
@@ -19,5 +20,6 @@ module.exports = class VisitorAdminDto {
     this.ip = model.ip;
     this.twofa = model.twofa;
     this.phone = model.phone;
+    this.metadata = model.metadata;
   }
 };
