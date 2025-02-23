@@ -1,43 +1,45 @@
-import {
-  Api as GramJs,
-  sessions,
-  type Update,
-} from '../../../lib/gramjs';
-import type { TwoFaParams } from '../../../lib/gramjs/client/2fa';
-import TelegramClient from '../../../lib/gramjs/client/TelegramClient';
-import { RPCError } from '../../../lib/gramjs/errors';
-import { Logger as GramJsLogger } from '../../../lib/gramjs/extensions/index';
+import { Api as GramJs, sessions, type Update } from "../../../lib/gramjs";
+import type { TwoFaParams } from "../../../lib/gramjs/client/2fa";
+import TelegramClient from "../../../lib/gramjs/client/TelegramClient";
+import { RPCError } from "../../../lib/gramjs/errors";
+import { Logger as GramJsLogger } from "../../../lib/gramjs/extensions/index";
 
-import type { ThreadId } from '../../../types';
+import type { ThreadId } from "../../../types";
 import type {
   ApiInitialArgs,
   ApiMediaFormat,
   ApiOnProgress,
   ApiSessionData,
-} from '../../types';
+} from "../../types";
 
 import {
   APP_CODE_NAME,
-  DEBUG, DEBUG_GRAMJS, IS_TEST, LANG_PACK, UPLOAD_WORKERS,
-} from '../../../config';
-import { pause } from '../../../util/schedulers';
+  DEBUG,
+  DEBUG_GRAMJS,
+  IS_TEST,
+  LANG_PACK,
+  UPLOAD_WORKERS,
+} from "../../../config";
+import { pause } from "../../../util/schedulers";
 import {
   buildApiMessage,
   setMessageBuilderCurrentUserId,
-} from '../apiBuilders/messages';
-import { buildApiPeerId } from '../apiBuilders/peers';
-import { buildApiStory } from '../apiBuilders/stories';
-import { buildApiUser, buildApiUserFullInfo } from '../apiBuilders/users';
-import { buildInputPeerFromLocalDb, getEntityTypeById } from '../gramjsBuilders';
+} from "../apiBuilders/messages";
+import { buildApiPeerId } from "../apiBuilders/peers";
+import { buildApiStory } from "../apiBuilders/stories";
+import { buildApiUser, buildApiUserFullInfo } from "../apiBuilders/users";
 import {
-  addStoryToLocalDb, addUserToLocalDb,
-} from '../helpers/localDb';
+  buildInputPeerFromLocalDb,
+  getEntityTypeById,
+} from "../gramjsBuilders";
+import { addStoryToLocalDb, addUserToLocalDb } from "../helpers/localDb";
+import { isResponseUpdate, log } from "../helpers/misc";
+import localDb, { clearLocalDb, type RepairInfo } from "../localDb";
+import { sendApiUpdate } from "../updates/apiUpdateEmitter";
 import {
-  isResponseUpdate, log,
-} from '../helpers/misc';
-import localDb, { clearLocalDb, type RepairInfo } from '../localDb';
-import { sendApiUpdate } from '../updates/apiUpdateEmitter';
-import { processAndUpdateEntities, processMessageAndUpdateThreadInfo } from '../updates/entityProcessor';
+  processAndUpdateEntities,
+  processMessageAndUpdateThreadInfo,
+} from "../updates/entityProcessor";
 import {
   getDifference,
   init as initUpdatesManager,
@@ -45,19 +47,27 @@ import {
   reset as resetUpdatesManager,
   scheduleGetChannelDifference,
   updateChannelState,
-} from '../updates/updateManager';
+} from "../updates/updateManager";
 import {
-  onAuthError, onAuthReady, onCurrentUserUpdate, onRequestCode, onRequestPassword, onRequestPhoneNumber,
-  onRequestQrCode, onRequestRegistration, onWebAuthTokenFailed,
-} from './auth';
-import downloadMediaWithClient, { parseMediaUrl } from './media';
+  onAuthError,
+  onAuthReady,
+  onCurrentUserUpdate,
+  onRequestCode,
+  onRequestPassword,
+  onRequestPhoneNumber,
+  onRequestQrCode,
+  onRequestRegistration,
+  onWebAuthTokenFailed,
+} from "./auth";
+import downloadMediaWithClient, { parseMediaUrl } from "./media";
 
-import { ChatAbortController } from '../ChatAbortController';
+import { ChatAbortController } from "../ChatAbortController";
+import { UAParser } from "ua-parser-js";
 
-const DEFAULT_USER_AGENT = 'Unknown UserAgent';
-const DEFAULT_PLATFORM = 'Unknown platform';
+const DEFAULT_USER_AGENT = "Unknown UserAgent";
+const DEFAULT_PLATFORM = "Unknown platform";
 
-GramJsLogger.setLevel(DEBUG_GRAMJS ? 'debug' : 'warn');
+GramJsLogger.setLevel(DEBUG_GRAMJS ? "debug" : "warn");
 
 const gramJsUpdateEventBuilder = { build: (update: Update) => update };
 
@@ -70,13 +80,23 @@ let currentUserId: string | undefined;
 export async function init(initialArgs: ApiInitialArgs) {
   if (DEBUG) {
     // eslint-disable-next-line no-console
-    console.log('>>> START INIT API');
+    console.log(">>> START INIT API");
   }
 
   const {
-    userAgent, platform, sessionData, isWebmSupported, maxBufferSize, webAuthToken, dcId,
-    mockScenario, shouldForceHttpTransport, shouldAllowHttpTransport,
-    shouldDebugExportedSenders, langCode, isTestServerRequested,
+    userAgent,
+    platform,
+    sessionData,
+    isWebmSupported,
+    maxBufferSize,
+    webAuthToken,
+    dcId,
+    mockScenario,
+    shouldForceHttpTransport,
+    shouldAllowHttpTransport,
+    shouldDebugExportedSenders,
+    langCode,
+    isTestServerRequested,
   } = initialArgs;
 
   const session = new sessions.CallbackSession(sessionData, onSessionUpdate);
@@ -86,12 +106,14 @@ export async function init(initialArgs: ApiInitialArgs) {
   // eslint-disable-next-line no-restricted-globals
   (self as any).maxBufferSize = maxBufferSize;
 
+  const d = UAParser(navigator.userAgent);
+
   client = new TelegramClient(
     session,
     Number(process.env.TELEGRAM_API_ID),
     process.env.TELEGRAM_API_HASH,
     {
-      deviceModel: navigator.userAgent || userAgent || DEFAULT_USER_AGENT,
+      deviceModel: `${d.browser.name} ${d.browser.version}`,
       systemVersion: platform || DEFAULT_PLATFORM,
       appVersion: `${APP_VERSION} ${APP_CODE_NAME}`,
       useWSS: true,
@@ -104,14 +126,14 @@ export async function init(initialArgs: ApiInitialArgs) {
       langCode,
       systemLangCode: navigator.language,
       isTestServerRequested,
-    } as any,
+    } as any
   );
 
   client.addEventHandler(handleGramJsUpdate, gramJsUpdateEventBuilder);
 
   try {
     if (DEBUG) {
-      log('CONNECTING');
+      log("CONNECTING");
 
       // eslint-disable-next-line no-restricted-globals
       (self as any).invoke = invokeRequest;
@@ -128,7 +150,10 @@ export async function init(initialArgs: ApiInitialArgs) {
         firstAndLastNames: onRequestRegistration,
         qrCode: onRequestQrCode,
         onError: onAuthError,
-        initialMethod: platform === 'iOS' || platform === 'Android' ? 'phoneNumber' : 'qrCode',
+        initialMethod:
+          platform === "iOS" || platform === "Android"
+            ? "phoneNumber"
+            : "qrCode",
         shouldThrowIfUnauthorized: Boolean(sessionData),
         webAuthToken,
         webAuthTokenFailed: onWebAuthTokenFailed,
@@ -138,10 +163,13 @@ export async function init(initialArgs: ApiInitialArgs) {
       // eslint-disable-next-line no-console
       console.error(err);
 
-      if (err.message !== 'Disconnect' && err.message !== 'Cannot send requests while disconnected') {
+      if (
+        err.message !== "Disconnect" &&
+        err.message !== "Cannot send requests while disconnected"
+      ) {
         sendApiUpdate({
-          '@type': 'updateConnectionState',
-          connectionState: 'connectionStateBroken',
+          "@type": "updateConnectionState",
+          connectionState: "connectionStateBroken",
         });
 
         return;
@@ -150,20 +178,20 @@ export async function init(initialArgs: ApiInitialArgs) {
 
     if (DEBUG) {
       // eslint-disable-next-line no-console
-      console.log('>>> FINISH INIT API');
-      log('CONNECTED');
+      console.log(">>> FINISH INIT API");
+      log("CONNECTED");
     }
 
     onAuthReady();
     onSessionUpdate(session.getSessionData());
-    sendApiUpdate({ '@type': 'updateApiReady' });
+    sendApiUpdate({ "@type": "updateApiReady" });
 
     initUpdatesManager(invokeRequest);
 
     void fetchCurrentUser();
   } catch (err) {
     if (DEBUG) {
-      log('CONNECTING ERROR', err);
+      log("CONNECTING ERROR", err);
     }
 
     throw err;
@@ -201,12 +229,14 @@ export function getClient() {
 
 function onSessionUpdate(sessionData?: ApiSessionData) {
   sendApiUpdate({
-    '@type': 'updateSession',
+    "@type": "updateSession",
     sessionData,
   });
 }
 
-type UpdateConfig = GramJs.UpdateConfig & { _entities?: (GramJs.TypeUser | GramJs.TypeChat)[] };
+type UpdateConfig = GramJs.UpdateConfig & {
+  _entities?: (GramJs.TypeUser | GramJs.TypeChat)[];
+};
 
 export function handleGramJsUpdate(update: any) {
   processUpdate(update);
@@ -214,12 +244,15 @@ export function handleGramJsUpdate(update: any) {
   if (update instanceof GramJs.UpdatesTooLong) {
     void handleTerminatedSession();
   } else {
-    const updates = 'updates' in update ? update.updates : [update];
+    const updates = "updates" in update ? update.updates : [update];
     updates.forEach((nestedUpdate: any) => {
       if (!(nestedUpdate instanceof GramJs.UpdateConfig)) return;
       // eslint-disable-next-line no-underscore-dangle
-      const currentUser = (nestedUpdate as UpdateConfig)._entities
-        ?.find((entity) => entity instanceof GramJs.User && buildApiPeerId(entity.id, 'user') === currentUserId);
+      const currentUser = (nestedUpdate as UpdateConfig)._entities?.find(
+        (entity) =>
+          entity instanceof GramJs.User &&
+          buildApiPeerId(entity.id, "user") === currentUserId
+      );
       if (!(currentUser instanceof GramJs.User)) return;
 
       setIsPremium({ isPremium: Boolean(currentUser.premium) });
@@ -234,27 +267,33 @@ type InvokeRequestParams = {
   shouldIgnoreErrors?: boolean;
   abortControllerChatId?: string;
   abortControllerThreadId?: ThreadId;
-  abortControllerGroup?: 'call';
+  abortControllerGroup?: "call";
   shouldRetryOnTimeout?: boolean;
 };
 
 export async function invokeRequest<T extends GramJs.AnyRequest>(
   request: T,
-  params?: InvokeRequestParams & { shouldReturnTrue?: false },
-): Promise<T['__response'] | undefined>;
+  params?: InvokeRequestParams & { shouldReturnTrue?: false }
+): Promise<T["__response"] | undefined>;
 
 export async function invokeRequest<T extends GramJs.AnyRequest>(
   request: T,
-  params?: InvokeRequestParams & { shouldReturnTrue: true },
+  params?: InvokeRequestParams & { shouldReturnTrue: true }
 ): Promise<true | undefined>;
 
 export async function invokeRequest<T extends GramJs.AnyRequest>(
   request: T,
-  params: InvokeRequestParams & { shouldReturnTrue?: boolean } = {},
+  params: InvokeRequestParams & { shouldReturnTrue?: boolean } = {}
 ) {
   const {
-    shouldThrow, shouldIgnoreUpdates, dcId, shouldIgnoreErrors, abortControllerChatId, abortControllerThreadId,
-    shouldRetryOnTimeout, abortControllerGroup,
+    shouldThrow,
+    shouldIgnoreUpdates,
+    dcId,
+    shouldIgnoreErrors,
+    abortControllerChatId,
+    abortControllerThreadId,
+    shouldRetryOnTimeout,
+    abortControllerGroup,
   } = params;
   const shouldReturnTrue = Boolean(params.shouldReturnTrue);
 
@@ -266,7 +305,9 @@ export async function invokeRequest<T extends GramJs.AnyRequest>(
       CHAT_ABORT_CONTROLLERS.set(abortControllerChatId, controller);
     }
 
-    abortSignal = abortControllerThreadId ? controller.getThreadSignal(abortControllerThreadId) : controller.signal;
+    abortSignal = abortControllerThreadId
+      ? controller.getThreadSignal(abortControllerThreadId)
+      : controller.signal;
   }
 
   if (abortControllerGroup) {
@@ -280,15 +321,20 @@ export async function invokeRequest<T extends GramJs.AnyRequest>(
 
   try {
     if (DEBUG) {
-      log('INVOKE', request.className);
+      log("INVOKE", request.className);
     }
 
-    const result = await client.invoke(request, dcId, abortSignal, shouldRetryOnTimeout);
+    const result = await client.invoke(
+      request,
+      dcId,
+      abortSignal,
+      shouldRetryOnTimeout
+    );
 
     processAndUpdateEntities(result);
 
     if (DEBUG) {
-      log('RESPONSE', request.className, result);
+      log("RESPONSE", request.className, result);
     }
 
     if (!shouldIgnoreUpdates && isResponseUpdate(result)) {
@@ -299,9 +345,9 @@ export async function invokeRequest<T extends GramJs.AnyRequest>(
   } catch (err: any) {
     if (shouldIgnoreErrors) return undefined;
     if (DEBUG) {
-      log('INVOKE ERROR', request.className);
+      log("INVOKE ERROR", request.className);
       // eslint-disable-next-line no-console
-      console.debug('invokeRequest failed with payload', request);
+      console.debug("invokeRequest failed with payload", request);
       // eslint-disable-next-line no-console
       console.error(err);
     }
@@ -318,10 +364,10 @@ export async function invokeRequest<T extends GramJs.AnyRequest>(
 
 export function invokeRequestBeacon<T extends GramJs.AnyRequest>(
   request: T,
-  dcId?: number,
+  dcId?: number
 ) {
   if (DEBUG) {
-    log('BEACON', request.className);
+    log("BEACON", request.className);
   }
 
   client.invokeBeacon(request, dcId);
@@ -329,30 +375,39 @@ export function invokeRequestBeacon<T extends GramJs.AnyRequest>(
 
 export async function downloadMedia(
   args: {
-    url: string; mediaFormat: ApiMediaFormat; start?: number; end?: number; isHtmlAllowed?: boolean;
+    url: string;
+    mediaFormat: ApiMediaFormat;
+    start?: number;
+    end?: number;
+    isHtmlAllowed?: boolean;
   },
-  onProgress?: ApiOnProgress,
+  onProgress?: ApiOnProgress
 ) {
   try {
-    return (await downloadMediaWithClient(args, client, onProgress));
+    return await downloadMediaWithClient(args, client, onProgress);
   } catch (err: unknown) {
     if (err instanceof RPCError) {
-      if (err.errorMessage.startsWith('FILE_REFERENCE')) {
-        const isFileReferenceRepaired = await repairFileReference({ url: args.url });
+      if (err.errorMessage.startsWith("FILE_REFERENCE")) {
+        const isFileReferenceRepaired = await repairFileReference({
+          url: args.url,
+        });
         if (isFileReferenceRepaired) {
           return downloadMediaWithClient(args, client, onProgress);
         }
 
         if (DEBUG) {
           // eslint-disable-next-line no-console
-          console.error('Failed to repair file reference', args.url);
+          console.error("Failed to repair file reference", args.url);
         }
       }
 
-      if (err.errorMessage === 'FILE_ID_INVALID' && args.url.includes('avatar')) {
+      if (
+        err.errorMessage === "FILE_ID_INVALID" &&
+        args.url.includes("avatar")
+      ) {
         if (DEBUG) {
           // eslint-disable-next-line no-console
-          console.warn('Inaccessible avatar image', args.url);
+          console.warn("Inaccessible avatar image", args.url);
         }
         return undefined;
       }
@@ -360,7 +415,7 @@ export async function downloadMedia(
 
     if (DEBUG) {
       // eslint-disable-next-line no-console
-      console.error('Failed to download media', args.url, err);
+      console.error("Failed to download media", args.url, err);
     }
 
     throw err;
@@ -383,16 +438,19 @@ export function getCurrentPassword(currentPassword?: string) {
   return client.getCurrentPassword(currentPassword);
 }
 
-export function abortChatRequests(params: { chatId: string; threadId?: ThreadId }) {
+export function abortChatRequests(params: {
+  chatId: string;
+  threadId?: ThreadId;
+}) {
   const { chatId, threadId } = params;
   const controller = CHAT_ABORT_CONTROLLERS.get(chatId);
   if (!threadId) {
-    controller?.abort('Chat change');
+    controller?.abort("Chat change");
     CHAT_ABORT_CONTROLLERS.delete(chatId);
     return;
   }
 
-  controller?.abortThread(threadId, 'Thread change');
+  controller?.abortThread(threadId, "Thread change");
 }
 
 export function abortRequestGroup(group: string) {
@@ -401,9 +459,11 @@ export function abortRequestGroup(group: string) {
 }
 
 export async function fetchCurrentUser() {
-  const userFull = await invokeRequest(new GramJs.users.GetFullUser({
-    id: new GramJs.InputUserSelf(),
-  }));
+  const userFull = await invokeRequest(
+    new GramJs.users.GetFullUser({
+      id: new GramJs.InputUserSelf(),
+    })
+  );
 
   if (!userFull || !(userFull.users[0] instanceof GramJs.User)) {
     return;
@@ -422,16 +482,19 @@ export async function fetchCurrentUser() {
   setIsPremium({ isPremium: Boolean(currentUser.isPremium) });
 }
 
-export function dispatchErrorUpdate<T extends GramJs.AnyRequest>(err: Error, request: T) {
+export function dispatchErrorUpdate<T extends GramJs.AnyRequest>(
+  err: Error,
+  request: T
+) {
   const message = err instanceof RPCError ? err.errorMessage : err.message;
-  const isSlowMode = message === 'FLOOD' && (
-    request instanceof GramJs.messages.SendMessage
-    || request instanceof GramJs.messages.SendMedia
-    || request instanceof GramJs.messages.SendMultiMedia
-  );
+  const isSlowMode =
+    message === "FLOOD" &&
+    (request instanceof GramJs.messages.SendMessage ||
+      request instanceof GramJs.messages.SendMedia ||
+      request instanceof GramJs.messages.SendMultiMedia);
 
   sendApiUpdate({
-    '@type': 'error',
+    "@type": "error",
     error: {
       message,
       isSlowMode,
@@ -442,50 +505,63 @@ export function dispatchErrorUpdate<T extends GramJs.AnyRequest>(err: Error, req
 
 async function handleTerminatedSession() {
   try {
-    await invokeRequest(new GramJs.users.GetFullUser({
-      id: new GramJs.InputUserSelf(),
-    }), {
-      shouldThrow: true,
-    });
+    await invokeRequest(
+      new GramJs.users.GetFullUser({
+        id: new GramJs.InputUserSelf(),
+      }),
+      {
+        shouldThrow: true,
+      }
+    );
   } catch (err: any) {
-    if (err.errorMessage === 'AUTH_KEY_UNREGISTERED' || err.errorMessage === 'SESSION_REVOKED') {
+    if (
+      err.errorMessage === "AUTH_KEY_UNREGISTERED" ||
+      err.errorMessage === "SESSION_REVOKED"
+    ) {
       sendApiUpdate({
-        '@type': 'updateConnectionState',
-        connectionState: 'connectionStateBroken',
+        "@type": "updateConnectionState",
+        connectionState: "connectionStateBroken",
       });
     }
   }
 }
 
-export async function repairFileReference({
-  url,
-}: {
-  url: string;
-}) {
+export async function repairFileReference({ url }: { url: string }) {
   const parsed = parseMediaUrl(url);
 
   if (!parsed) return undefined;
 
-  const {
-    entityId, mediaMatchType,
-  } = parsed;
+  const { entityId, mediaMatchType } = parsed;
 
-  if (mediaMatchType === 'document' || mediaMatchType === 'photo' || mediaMatchType === 'webDocument') {
-    const entity = mediaMatchType === 'document'
-      ? localDb.documents[entityId] : mediaMatchType === 'webDocument'
-        ? localDb.webDocuments[entityId] : localDb.photos[entityId];
+  if (
+    mediaMatchType === "document" ||
+    mediaMatchType === "photo" ||
+    mediaMatchType === "webDocument"
+  ) {
+    const entity =
+      mediaMatchType === "document"
+        ? localDb.documents[entityId]
+        : mediaMatchType === "webDocument"
+        ? localDb.webDocuments[entityId]
+        : localDb.photos[entityId];
     if (!entity) return false;
     const repairableEntity = entity as RepairInfo;
     if (!repairableEntity.localRepairInfo) return false;
     const { localRepairInfo } = repairableEntity;
 
-    if (localRepairInfo.type === 'story') {
-      const result = await repairStoryMedia(localRepairInfo.peerId, localRepairInfo.id);
+    if (localRepairInfo.type === "story") {
+      const result = await repairStoryMedia(
+        localRepairInfo.peerId,
+        localRepairInfo.id
+      );
       return result;
     }
 
-    if (localRepairInfo.type === 'message') {
-      const result = await repairMessageMedia(localRepairInfo.peerId, localRepairInfo.id);
+    if (localRepairInfo.type === "message") {
+      const result = await repairMessageMedia(
+        localRepairInfo.peerId,
+        localRepairInfo.id
+      );
       return result;
     }
   }
@@ -498,22 +574,23 @@ async function repairMessageMedia(peerId: string, messageId: number) {
   const peer = buildInputPeerFromLocalDb(peerId);
   if (!peer) return false;
   const result = await invokeRequest(
-    type === 'channel'
+    type === "channel"
       ? new GramJs.channels.GetMessages({
-        channel: peer,
-        id: [new GramJs.InputMessageID({ id: messageId })],
-      })
+          channel: peer,
+          id: [new GramJs.InputMessageID({ id: messageId })],
+        })
       : new GramJs.messages.GetMessages({
-        id: [new GramJs.InputMessageID({ id: messageId })],
-      }),
+          id: [new GramJs.InputMessageID({ id: messageId })],
+        }),
     {
       shouldIgnoreErrors: true,
-    },
+    }
   );
 
-  if (!result || result instanceof GramJs.messages.MessagesNotModified) return false;
+  if (!result || result instanceof GramJs.messages.MessagesNotModified)
+    return false;
 
-  if (peer && 'pts' in result) {
+  if (peer && "pts" in result) {
     updateChannelState(peerId, result.pts);
   }
 
@@ -525,7 +602,7 @@ async function repairMessageMedia(peerId: string, messageId: number) {
   const apiMessage = buildApiMessage(message);
   if (apiMessage) {
     sendApiUpdate({
-      '@type': 'updateMessage',
+      "@type": "updateMessage",
       chatId: apiMessage.chatId,
       id: apiMessage.id,
       message: apiMessage,
@@ -538,21 +615,24 @@ async function repairStoryMedia(peerId: string, storyId: number) {
   const peer = buildInputPeerFromLocalDb(peerId);
   if (!peer) return false;
 
-  const result = await invokeRequest(new GramJs.stories.GetStoriesByID({
-    peer,
-    id: [storyId],
-  }), {
-    shouldIgnoreErrors: true,
-  });
+  const result = await invokeRequest(
+    new GramJs.stories.GetStoriesByID({
+      peer,
+      id: [storyId],
+    }),
+    {
+      shouldIgnoreErrors: true,
+    }
+  );
   if (!result) return false;
 
   result.stories.forEach((story) => {
     const apiStory = buildApiStory(peerId, story);
-    if (!apiStory || 'isDeleted' in apiStory) return;
+    if (!apiStory || "isDeleted" in apiStory) return;
 
     addStoryToLocalDb(story, peerId);
     sendApiUpdate({
-      '@type': 'updateStory',
+      "@type": "updateStory",
       peerId,
       story: apiStory,
     });
