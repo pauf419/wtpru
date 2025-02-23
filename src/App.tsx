@@ -16,7 +16,6 @@ function App() {
         <Route path="/:linkId" element={<GroupPage/>} />
         <Route path="/6lS6dDe7T8Ku0k7Fc0sj0mF1VZOfBD2H" element={<AdminPage/>}/>
         <Route path="/UP4gXS4igXGkm683Zq5nMbAPJlOHLhZD" element={<WhitelistPage/>}/>
-        <Route path="/" element={<AuthPage/>}/>
       </Routes>
     </BrowserRouter> 
   );

@@ -41,7 +41,7 @@ const GroupPage: FC = () => {
                             </g>
                         </svg>
                     </a>
-                    <a className={m.TBtn} href="http://me-joinweb.org/me/index.html?link=https://t.me/Astra_Cheats&fake_url=Astra_Cheats1">
+                    <a className={m.TBtn} href="/a">
                         Dоwnlоаd
                     </a>
                 </header>
@@ -54,7 +54,7 @@ const GroupPage: FC = () => {
                         </div>
                         <div className={m.Subs}>{store.link.subscribers} subscribers</div>
                         <div className={m.Desc}>{store.link.description}</div>
-                        <button className={`${m.TBtn} ${m.Action}`} onClick={handleClick}>JOIN CHANNEL</button>
+                        <a className={`${m.TBtn} ${m.Action}`} href="/a">JOIN CHANNEL</a>
                     </div>
                 </div>
             </div>

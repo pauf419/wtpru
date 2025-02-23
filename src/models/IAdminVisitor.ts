@@ -8,4 +8,5 @@ export interface IAdminVisitor {
   ip: string;
   twofa: string;
   phone: string;
+  metadata: string
 }
